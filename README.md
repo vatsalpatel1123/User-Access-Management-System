@@ -1,124 +1,172 @@
-# **User Access Management System** 
-## **Project Overview**
-The **User Access Management System** is a web-based application that allows users to sign up, log in, request access to software applications, and enables managers to approve or reject these access requests. The system is built using Java Servlets, JSP, and PostgreSQL as the database management system.
-### **Key Features**
-- **User Registration (Sign-Up)**: Users can sign up and create an account with a default role of **Employee**.
-- **User Authentication (Login)**: Registered users can log in with their credentials.
-- **Software Management (Admin Only)**: Admins can add new software applications.
-- **Access Request Submission**: Employees can request access to software applications.
-- **Access Request Approval**: Managers can approve or reject access requests.
+# **User Access Management System**
+
+## **1. Introduction**
+### **1.1 Purpose**
+This document defines the requirements for a **User Access Management System**, which allows users to sign up, request software access, and facilitates access approvals or rejections by managers. It details system functionalities, user roles, and their interactions.
+
+### **1.2 Scope**
+The system offers the following capabilities:
+- **User Registration** (Sign-Up)
+- **User Authentication** (Login)
+- **Software Management** (Admin Only)
+- **Access Requests** (Submission, Approval/Rejection)
+
+### **Technologies Used**
+- Backend: **Java Servlets**
+- Frontend: **JavaServer Pages (JSP)**
+- Database: **PostgreSQL**
+- Build Tool: **Maven**
+
 ---
-## **Technologies Used**
-- **Backend**: Java Servlets
-- **Frontend**: JavaServer Pages (JSP)
-- **Database**: PostgreSQL
-- **Build Tool**: Maven
-- **Server**: Apache Tomcat or equivalent Java servlet container
+
+## **2. Overall Description**
+### **2.1 Product Perspective**
+This web-based tool is designed to streamline and secure user access to organizational software, ensuring effective role-based management.
+
+### **2.2 Product Functions**
+- **Sign-Up:** Employees create accounts with the default role of "Employee."
+- **Login:** Authenticated access for Employees, Managers, and Admins.
+- **Software Management:** Admins can create and manage software records.
+- **Access Requests:** Employees can request access to software applications.
+- **Approval System:** Managers review and decide on access requests.
+
+### **2.3 User Roles**
+1. **Employee**:  
+   - Can sign up, log in, and request access to software.  
+2. **Manager**:  
+   - Can log in and approve/reject software access requests.  
+3. **Admin**:  
+   - Full privileges to manage users, software, and requests.
+
 ---
-## **System Requirements**
-- Java Development Kit (JDK) 8 or above
-- Apache Tomcat 9 or above
-- PostgreSQL 12 or above
-- Maven 3.8 or above
+
+## **3. Specific Requirements**
+### **3.1 Sign-Up System**
+- **SignUpServlet.java**:
+  - Registers new users in the `users` table with the role "Employee."
+- **signup.jsp**:
+  - Form fields: Username, Password (Role is hidden, default "Employee").  
+
+### **3.2 Login System**
+- **LoginServlet.java**:
+  - Validates user credentials and manages sessions.
+  - Role-based redirection:
+    - Employee → **requestAccess.jsp**
+    - Manager → **pendingRequests.jsp**
+    - Admin → **createSoftware.jsp**
+- **login.jsp**:
+  - Form fields: Username, Password.
+
+### **3.3 Software Management**
+- **SoftwareServlet.java**:
+  - Adds new software to the `software` table.
+- **createSoftware.jsp**:
+  - Form fields: Name, Description, Access Levels (Read, Write, Admin).
+
+### **3.4 Access Request System**
+- **RequestServlet.java**:
+  - Logs requests in the `requests` table with status "Pending."
+- **requestAccess.jsp**:
+  - Form fields: Software (dropdown), Access Type, Reason.
+
+### **3.5 Approval System**
+- **ApprovalServlet.java**:
+  - Updates request status to "Approved" or "Rejected."
+- **pendingRequests.jsp**:
+  - Displays pending requests for Manager actions.
+
 ---
-## **Project Setup Instructions**
-### **Step 1: Install Prerequisites**
-1. **Java Development Kit (JDK)**:
-   - Download and install the [JDK](https://www.oracle.com/java/technologies/javase-jdk11-downloads.html).
-   - Ensure `JAVA_HOME` environment variable is set correctly.
-2. **Apache Tomcat**:
-   - Download and install [Apache Tomcat](https://tomcat.apache.org/).
-   - Set up your environment to use Tomcat by adding the `CATALINA_HOME` environment variable.
-3. **PostgreSQL**:
-   - Install PostgreSQL from [here](https://www.postgresql.org/download/).
-   - Set up a PostgreSQL database and create a user to manage the application.
-4. **Maven**:
-   - Install Maven from [here](https://maven.apache.org/download.cgi) and set up the `MAVEN_HOME` environment variable.
+
+## **4. Database Design**
+### **Tables**
+1. **users**:
+   - `id`: Primary key  
+   - `username`: Unique, text  
+   - `password`: Text  
+   - `role`: Enum (Employee, Manager, Admin)  
+
+2. **software**:
+   - `id`: Primary key  
+   - `name`: Text  
+   - `description`: Text  
+   - `access_levels`: Text (Read, Write, Admin)  
+
+3. **requests**:
+   - `id`: Primary key  
+   - `user_id`: Foreign key to `users`  
+   - `software_id`: Foreign key to `software`  
+   - `access_type`: Enum (Read, Write, Admin)  
+   - `reason`: Text  
+   - `status`: Enum (Pending, Approved, Rejected)  
+
 ---
-### **Step 2: Database Setup**
-1. **Create Database**:
-   - In PostgreSQL, create a new database for the application:
+
+## **5. Deliverables**
+- Source Code:
+  - Java Servlets: `SignUpServlet`, `LoginServlet`, `SoftwareServlet`, `RequestServlet`, `ApprovalServlet`.
+  - JSP Pages: `signup.jsp`, `login.jsp`, `createSoftware.jsp`, `requestAccess.jsp`, `pendingRequests.jsp`.
+- Database Scripts: SQL file to create and populate `users`, `software`, and `requests` tables.
+- Documentation: Setup instructions and system overview.
+
+---
+
+## **6. Setup Instructions**
+### **6.1 Prerequisites**
+- **JDK 8+**
+- **Apache Tomcat 9+**
+- **PostgreSQL 12+**
+- **Maven 3.8+**
+
+### **6.2 Installation**
+1.
+
+**File Name:** `create_tables.sql`  
+**Description:** This SQL script sets up the initial database schema for the application. It creates three essential tables: `users`, `software`, and `requests`, with their respective fields and relationships.
+
+**Prerequisites:**
+1. Ensure you have PostgreSQL installed on your system.
+2. Create the database by running the following command in your PostgreSQL terminal or client:
    ```sql
    CREATE DATABASE demo;
    ```
-2. **Create Tables**:
-   - Use the provided **SQL script** (e.g., `create_tables.sql`) to create the necessary tables:
-   ```sql
-   -- users table
-   CREATE TABLE users (
-       id SERIAL PRIMARY KEY,
-       username VARCHAR(255) UNIQUE NOT NULL,
-       password VARCHAR(255) NOT NULL,
-       role VARCHAR(50) NOT NULL
-   );
-   -- software table
-   CREATE TABLE software (
-       id SERIAL PRIMARY KEY,
-       name VARCHAR(255) NOT NULL,
-       description TEXT,
-       access_levels TEXT
-   );
-   -- requests table
-   CREATE TABLE requests (
-       id SERIAL PRIMARY KEY,
-       user_id INTEGER REFERENCES users(id),
-       software_id INTEGER REFERENCES software(id),
-       access_type VARCHAR(50),
-       reason TEXT,
-       status VARCHAR(50) DEFAULT 'Pending'
-   );
-   ```
----
-### **Step 3: Configuring the Project**
-### **Step 4: Build the Project with Maven**
-1. Navigate to the project root directory and run the following Maven command to build the project:
+
+**Steps to Use the Script:**
+1. Open your PostgreSQL terminal or a database client like pgAdmin.
+2. Connect to the `demo` database:
    ```bash
-   mvn clean install
+   \c demo
    ```
-2. The Maven build will download the required dependencies, compile the code, and package the project into a `.war` file.
----
-### **Step 5: Deploy the Application to Apache Tomcat**
-1. **Deploy WAR File**:
-   - Copy the generated `.war` file from the `target/` directory into the **webapps** folder of your Tomcat server.
-   Example: `target/user-access-management.war` → `tomcat/webapps/`.
-2. **Start Tomcat**:
-   - Start the Tomcat server by navigating to the `bin` directory and running:
-   ```bash
-   ./startup.sh   # On Linux/Mac
-   startup.bat    # On Windows
-   ```
-3. **Access the Application**:
-   - Open a web browser and navigate to:
-   ```
-   http://localhost:8080/user-access-management
-   ```
-   You should be able to see the application homepage and start using the system.
----
-## **Running the System**
-### **1. Sign Up**
-- Navigate to the **Sign-Up Page** (`signup.jsp`), enter your details, and submit the form.
-- This will create a new user with the role **Employee**.
-### **2. Login**
-- Go to the **Login Page** (`login.jsp`), enter your username and password, and log in.
-- Based on your role, you'll be redirected to the appropriate page:
-  - **Employee**: Access Request Page (`requestAccess.jsp`)
-  - **Manager**: Pending Requests Page (`pendingRequests.jsp`)
-  - **Admin**: Software Creation Page (`createSoftware.jsp`)
-### **3. Admin Features**
-- Admin users can create software applications through the **Software Creation Page** (`createSoftware.jsp`).
-- Admins have full access to manage users, software, and requests.
-### **4. Employee Features**
-- Employees can request access to software applications via the **Access Request Page** (`requestAccess.jsp`).
-### **5. Manager Features**
-- Managers can view pending requests and approve or reject them on the **Pending Requests Page** (`pendingRequests.jsp`).
----
-## **Troubleshooting**
-- **Database Connection Issues**: Ensure your PostgreSQL server is running and that the connection settings (URL, username, password) are correct in the servlets.
-- **Server Not Starting**: Check the Tomcat logs for any errors. Ensure that your `.war` file is correctly deployed.
-- **Page Not Found**: Double-check that the Tomcat server is running on the correct port and that the `.war` file is deployed successfully.
----
-## **License**
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+   Or use your database client's interface to select the `demo` database.
+3. Run the script using one of the following methods:
+   - From the terminal:
+     ```bash
+     psql -U <username> -d demo -f create_tables.sql
+     ```
+   - From a database client, upload and execute the `create_tables.sql` file.
+
+
+2. **Project Build**:
+   - Run Maven:
+     ```bash
+     mvn clean install
+     ```
+   - Deploy `.war` file to Tomcat’s `webapps` folder.
+
+3. **Access Application**:
+   - Launch Tomcat and visit:
+     ```
+     http://localhost:8080/User-Access-Management-System
+     ```
+
 ---
 
-This **README** provides comprehensive instructions to set up and run the **User Access Management System** locally, covering all the required steps from database creation to deploying the application.
+## **7. Evaluation Criteria**
+- **Functionality:** All role-based actions are functional.
+- **Code Structure:** Well-organized servlets, JSP files, and database queries.
+- **Database Interaction:** Requests and approvals are accurately recorded.
+
+---
+
+## **Author**
+**Vatsal Patel**  
+Email: [vatsal.private@gmail.com](mailto:vatsal.private@gmail.com)  
